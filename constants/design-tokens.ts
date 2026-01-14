@@ -46,5 +46,15 @@ export const DesignTokens = {
     badgeFontSize: 10,
     nameFontSize: 16,
     headerFontSize: 24,
+    detailImageSize: 200,
+    detailNameFontSize: 32,
+    detailIdFontSize: 24,
+  },
+  detail: {
+    headerHeight: 372,
+    tabBarHeight: 32,
+    tabUnderlineActive: '#5631E8',
+    tabUnderlineInactive: '#DBDAE6',
+    favoriteActive: '#FF6B6B',
   },
 } as const;
