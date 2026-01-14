@@ -17,42 +17,42 @@ Assignment from [Inholland React Native Course 3](https://github.com/levizimmerm
 ### Core Functionality
 - [x] Functional Expo Go project (scannable QR code)
 - [x] PokeAPI integration for all Pokemon data
-- [ ] Pokemon list with search/filter capability
-- [ ] Pokemon detail view with scrollable layout
-- [ ] Navigation between list and detail screens
-- [ ] Favorites system with persistent storage (SQLite)
-- [ ] Type display with unique color coding per type
-- [ ] Swipeable tabs for: metadata, stats, evolution chains
+- [x] Pokemon list with search/filter capability
+- [x] Pokemon detail view with scrollable layout
+- [x] Navigation between list and detail screens
+- [x] Favorites system with persistent storage (SQLite)
+- [x] Type display with unique color coding per type
+- [x] Tabs for: metadata, stats, evolution chains
 
 ### User Actions
-- [ ] Favorite/unfavorite Pokemon from detail view
-- [ ] Share functionality using React Native Share API
-- [ ] Access detail views from both list and favorites screens
+- [x] Favorite/unfavorite Pokemon from detail view
+- [x] Share functionality using React Native Share API
+- [x] Access detail views from both list and favorites screens
 
 ### State Management
 Loading and error states required for:
-- [ ] Fetching Pokemon list
-- [ ] Fetching individual Pokemon details
-- [ ] Fetching evolution chains
+- [x] Fetching Pokemon list
+- [x] Fetching individual Pokemon details
+- [x] Fetching evolution chains
 
 ---
 
 ## Required Tech Stack
-- [ ] TanStack Query for API calls
-- [ ] Expo Router for navigation
-- [ ] SQLite for local persistence
-- [ ] TypeScript with zero errors
-- [ ] ESLint with zero errors (React Compiler Linter preferred)
-- [ ] Custom font via Expo Font
-- [ ] Separation of Concerns architecture
+- [x] TanStack Query for API calls
+- [x] Expo Router for navigation
+- [x] SQLite for local persistence
+- [x] TypeScript with zero errors
+- [x] ESLint with zero errors (React Compiler Linter preferred)
+- [x] Custom font via Expo Font (Rubik)
+- [x] Separation of Concerns architecture
 
 ---
 
 ## Optional Features (+1 point each)
 - [ ] UI animations (loading states, transitions)
 - [ ] Dark mode support with theming
-- [ ] Pagination with infinite scroll (50 items per load)
-- [ ] Type-safe code (no `any`, casting, or TS ignores)
+- [x] Pagination with infinite scroll (50 items per load)
+- [x] Type-safe code (no `any`, casting, or TS ignores)
 - [ ] Pixel-perfect iOS or Android design
 - [ ] Zero console errors/logs
 - [ ] App localization support
