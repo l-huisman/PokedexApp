@@ -1,98 +1,229 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { PokemonCard } from '@/components/pokemon-card';
+import { SearchBar } from '@/components/search-bar';
+import { DesignTokens } from '@/constants/design-tokens';
+import { usePokemonList, type PokemonListItem } from '@/hooks/use-pokemon-list';
+import { getPokemonImageUrl } from '@/lib/api/pokemon';
 
-export default function HomeScreen() {
+const COLUMN_COUNT = 2;
+
+export default function PokedexScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+    isRefetching,
+  } = usePokemonList();
+
+  const allPokemon = useMemo(
+    () => data?.pages.flatMap((page) => page.items) ?? [],
+    [data]
+  );
+
+  const filteredPokemon = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return allPokemon;
+    }
+    const query = searchQuery.toLowerCase().trim();
+    return allPokemon.filter(
+      (pokemon) =>
+        pokemon.name.toLowerCase().includes(query) ||
+        pokemon.id.toString().includes(query)
+    );
+  }, [allPokemon, searchQuery]);
+
+  const handlePokemonPress = useCallback(
+    (id: number) => {
+      router.push(`/pokemon/${id}`);
+    },
+    [router]
+  );
+
+  const handleEndReached = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage && !searchQuery) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, searchQuery]);
+
+  const handleRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const renderItem = useCallback(
+    ({ item }: { item: PokemonListItem }) => (
+      <PokemonCard
+        id={item.id}
+        name={item.name}
+        imageUrl={getPokemonImageUrl(item.id)}
+        onPress={() => handlePokemonPress(item.id)}
+      />
+    ),
+    [handlePokemonPress]
+  );
+
+  const keyExtractor = useCallback(
+    (item: PokemonListItem) => item.id.toString(),
+    []
+  );
+
+  const ListHeaderComponent = useMemo(
+    () => (
+      <View style={styles.header}>
+        <SearchBar onSearch={setSearchQuery} />
+        <Text style={styles.title}>All Pokémon</Text>
+      </View>
+    ),
+    []
+  );
+
+  const ListFooterComponent = useMemo(
+    () =>
+      isFetchingNextPage ? (
+        <View style={styles.footer}>
+          <ActivityIndicator size="small" color={DesignTokens.colors.primary} />
+        </View>
+      ) : null,
+    [isFetchingNextPage]
+  );
+
+  const ListEmptyComponent = useMemo(
+    () => (
+      <View style={styles.empty}>
+        <Text style={styles.emptyText}>
+          {searchQuery
+            ? `No Pokémon found for "${searchQuery}"`
+            : 'No Pokémon available'}
+        </Text>
+      </View>
+    ),
+    [searchQuery]
+  );
+
+  if (isLoading) {
+    return (
+      <View style={[styles.centered, { paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={DesignTokens.colors.primary} />
+        <Text style={styles.loadingText}>Loading Pokémon...</Text>
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View style={[styles.centered, { paddingTop: insets.top }]}>
+        <Text style={styles.errorTitle}>Error loading Pokémon</Text>
+        <Text style={styles.errorText}>{error?.message ?? 'Unknown error'}</Text>
+      </View>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
-
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <FlatList
+        data={filteredPokemon}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        numColumns={COLUMN_COUNT}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.listContent}
+        ListHeaderComponent={ListHeaderComponent}
+        ListFooterComponent={ListFooterComponent}
+        ListEmptyComponent={ListEmptyComponent}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={handleRefresh}
+            tintColor={DesignTokens.colors.primary}
+          />
+        }
+        showsVerticalScrollIndicator={false}
+        removeClippedSubviews
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+    backgroundColor: DesignTokens.colors.background,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    backgroundColor: DesignTokens.colors.background,
+    gap: 12,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  listContent: {
+    paddingHorizontal: DesignTokens.spacing.screenPadding,
+    paddingBottom: 24,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  header: {
+    marginBottom: 16,
+    marginHorizontal: -DesignTokens.spacing.screenPadding + DesignTokens.spacing.searchMargin,
+  },
+  title: {
+    fontFamily: 'Rubik_700Bold',
+    fontSize: DesignTokens.sizes.headerFontSize,
+    color: DesignTokens.colors.midnight,
+    marginTop: 24,
+    marginLeft: DesignTokens.spacing.screenPadding - DesignTokens.spacing.searchMargin,
+  },
+  row: {
+    gap: DesignTokens.spacing.cardGap,
+    marginBottom: DesignTokens.spacing.cardGap,
+  },
+  footer: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  empty: {
+    paddingVertical: 40,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontFamily: 'Rubik_400Regular',
+    fontSize: 16,
+    color: DesignTokens.colors.midnight,
+    opacity: 0.6,
+  },
+  loadingText: {
+    fontFamily: 'Rubik_400Regular',
+    fontSize: 16,
+    color: DesignTokens.colors.midnight,
+  },
+  errorTitle: {
+    fontFamily: 'Rubik_500Medium',
+    fontSize: 18,
+    color: DesignTokens.colors.midnight,
+  },
+  errorText: {
+    fontFamily: 'Rubik_400Regular',
+    fontSize: 14,
+    color: DesignTokens.colors.midnight,
+    opacity: 0.6,
   },
 });

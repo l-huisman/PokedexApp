@@ -16,7 +16,7 @@ Assignment from [Inholland React Native Course 3](https://github.com/levizimmerm
 
 ### Core Functionality
 - [x] Functional Expo Go project (scannable QR code)
-- [ ] PokeAPI integration for all Pokemon data
+- [x] PokeAPI integration for all Pokemon data
 - [ ] Pokemon list with search/filter capability
 - [ ] Pokemon detail view with scrollable layout
 - [ ] Navigation between list and detail screens
