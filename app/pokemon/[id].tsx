@@ -93,7 +93,7 @@ export default function PokemonDetailScreen() {
   const { detail, evolutionChain } = data;
   const formattedName = detail.name.charAt(0).toUpperCase() + detail.name.slice(1);
   const formattedId = `#${detail.id.toString().padStart(3, '0')}`;
-  const imageUrl = getPokemonImageUrl(detail.id);
+  const imageUrl = getPokemonImageUrl(detail.id, true);
 
   return (
     <View style={styles.container}>

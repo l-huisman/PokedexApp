@@ -45,6 +45,9 @@ export function extractIdFromUrl(url: string): number {
   return parseInt(matches[1], 10);
 }
 
-export function getPokemonImageUrl(id: number): string {
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+export function getPokemonImageUrl(id: number, officialArtwork = false): string {
+  const base = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon';
+  return officialArtwork
+    ? `${base}/other/official-artwork/${id}.png`
+    : `${base}/${id}.png`;
 }
