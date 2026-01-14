@@ -46,8 +46,7 @@ export default function RootLayout() {
           <Stack.Screen
             name="pokemon/[id]"
             options={{
-              title: 'Pokemon',
-              headerBackTitle: 'Back',
+              headerShown: false,
             }}
           />
         </Stack>
