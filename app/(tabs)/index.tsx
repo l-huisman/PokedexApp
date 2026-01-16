@@ -20,6 +20,7 @@ import { ThemeSelector } from '@/components/theme-selector';
 import { DesignTokens } from '@/constants/design-tokens';
 import { useThemedColors } from '@/hooks/use-themed-tokens';
 import { usePokemonList, type PokemonListItem } from '@/hooks/use-pokemon-list';
+import { usePokemonSearch } from '@/hooks/use-pokemon-search';
 import { getPokemonImageUrl } from '@/lib/api/pokemon';
 
 const COLUMN_COUNT = 2;
@@ -43,22 +44,23 @@ export default function PokedexScreen() {
     isRefetching,
   } = usePokemonList();
 
+  const {
+    searchResults,
+    isLoading: isSearchLoading,
+    isSearching,
+  } = usePokemonSearch(searchQuery);
+
   const allPokemon = useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
     [data]
   );
 
-  const filteredPokemon = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return allPokemon;
+  const displayedPokemon = useMemo(() => {
+    if (isSearching) {
+      return searchResults;
     }
-    const query = searchQuery.toLowerCase().trim();
-    return allPokemon.filter(
-      (pokemon) =>
-        pokemon.name.toLowerCase().includes(query) ||
-        pokemon.id.toString().includes(query)
-    );
-  }, [allPokemon, searchQuery]);
+    return allPokemon;
+  }, [isSearching, searchResults, allPokemon]);
 
   const handlePokemonPress = useCallback(
     (id: number) => {
@@ -68,10 +70,10 @@ export default function PokedexScreen() {
   );
 
   const handleEndReached = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage && !searchQuery) {
+    if (hasNextPage && !isFetchingNextPage && !isSearching) {
       fetchNextPage();
     }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, searchQuery]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, isSearching]);
 
   const handleRefresh = useCallback(() => {
     refetch();
@@ -110,12 +112,16 @@ export default function PokedexScreen() {
             <MaterialIcons name="settings" size={24} color={colors.midnight} />
           </Pressable>
         </View>
-        {!searchQuery && (
+        {isSearching ? (
+          <Text style={[styles.resultsCount, { color: colors.midnight }]}>
+            {searchResults.length} {searchResults.length === 1 ? 'result' : 'results'} found
+          </Text>
+        ) : (
           <Text style={[styles.title, { color: colors.midnight }]}>All Pokémon</Text>
         )}
       </View>
     ),
-    [searchQuery, colors.midnight, colors.cardBackground]
+    [isSearching, searchResults.length, colors.midnight, colors.cardBackground]
   );
 
   const ListFooterComponent = useMemo(
@@ -131,14 +137,18 @@ export default function PokedexScreen() {
   const ListEmptyComponent = useMemo(
     () => (
       <View style={styles.empty}>
-        <Text style={[styles.emptyText, { color: colors.midnight }]}>
-          {searchQuery
-            ? `No Pokémon found for "${searchQuery}"`
-            : 'No Pokémon available'}
-        </Text>
+        {isSearching && isSearchLoading ? (
+          <ActivityIndicator size="small" color={colors.primary} />
+        ) : (
+          <Text style={[styles.emptyText, { color: colors.midnight }]}>
+            {isSearching
+              ? `No Pokémon found for "${searchQuery}"`
+              : 'No Pokémon available'}
+          </Text>
+        )}
       </View>
     ),
-    [searchQuery, colors.midnight]
+    [isSearching, isSearchLoading, searchQuery, colors.midnight, colors.primary]
   );
 
   if (isLoading) {
@@ -172,7 +182,7 @@ export default function PokedexScreen() {
     <View
       style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.background }]}>
       <FlatList
-        data={filteredPokemon}
+        data={displayedPokemon}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         numColumns={COLUMN_COUNT}
@@ -252,6 +262,13 @@ const styles = StyleSheet.create({
     fontSize: DesignTokens.sizes.headerFontSize,
     marginTop: 24,
     marginLeft: DesignTokens.spacing.screenPadding - DesignTokens.spacing.searchMargin,
+  },
+  resultsCount: {
+    fontFamily: 'Rubik_500Medium',
+    fontSize: 14,
+    marginTop: 16,
+    marginLeft: DesignTokens.spacing.screenPadding - DesignTokens.spacing.searchMargin,
+    opacity: 0.6,
   },
   row: {
     gap: DesignTokens.spacing.cardGap,

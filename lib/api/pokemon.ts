@@ -20,6 +20,11 @@ export async function getPokemonList(
   return PokemonListResponseSchema.parse(data);
 }
 
+export async function getAllPokemonNames(): Promise<PokemonListResponse> {
+  const data = await fetchApi<unknown>('/pokemon?limit=2000');
+  return PokemonListResponseSchema.parse(data);
+}
+
 export async function getPokemonDetail(
   idOrName: number | string
 ): Promise<PokemonDetail> {
