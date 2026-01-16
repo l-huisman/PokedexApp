@@ -49,11 +49,11 @@ Loading and error states required for:
 ---
 
 ## Optional Features (+1 point each)
-- [ ] UI animations (loading states, transitions)
+- [x] UI animations (loading states, transitions)
 - [ ] Dark mode support with theming
 - [x] Pagination with infinite scroll (50 items per load)
 - [x] Type-safe code (no `any`, casting, or TS ignores)
-- [ ] Pixel-perfect iOS or Android design
+- [x] Pixel-perfect iOS or Android design
 - [ ] Zero console errors/logs
 - [ ] App localization support
 - [ ] Pokemon battle feature (100 points)
