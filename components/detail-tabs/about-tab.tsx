@@ -37,7 +37,7 @@ export function AboutTab({ pokemon }: AboutTabProps) {
       <InfoRow label="Name" value={formattedName} />
       <InfoRow label="ID" value={formattedId} />
       <InfoRow
-        label="Base XP"
+        label="Base"
         value={pokemon.base_experience ? `${pokemon.base_experience} XP` : '-'}
       />
       <InfoRow label="Weight" value={`${weightKg} kg`} />

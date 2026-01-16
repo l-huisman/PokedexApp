@@ -3,6 +3,7 @@ import {
   useFonts,
   Rubik_400Regular,
   Rubik_500Medium,
+  Rubik_600SemiBold,
   Rubik_700Bold,
 } from '@expo-google-fonts/rubik';
 import { Stack } from 'expo-router';
@@ -25,6 +26,7 @@ export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Rubik_400Regular,
     Rubik_500Medium,
+    Rubik_600SemiBold,
     Rubik_700Bold,
   });
 

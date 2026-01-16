@@ -72,9 +72,7 @@ const styles = StyleSheet.create({
     gap: 12,
     ...DesignTokens.shadows.card,
   },
-  icon: {
-    opacity: 0.6,
-  },
+  icon: {},
   input: {
     flex: 1,
     fontSize: 16,

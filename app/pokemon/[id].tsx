@@ -369,12 +369,10 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: DesignTokens.colors.cardBackground,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
     paddingTop: 74,
     paddingHorizontal: DesignTokens.spacing.screenPadding,
     paddingBottom: 40,
-    minHeight: 400,
+    flex: 1,
   },
   tabBar: {
     flexDirection: 'row',
@@ -382,11 +380,12 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
-    paddingVertical: 10,
+    paddingTop: 5,
+    paddingBottom: 10,
     borderBottomWidth: 2,
   },
   tabText: {
-    fontFamily: 'Rubik_500Medium',
+    fontFamily: 'Rubik_600SemiBold',
     fontSize: 14,
     color: DesignTokens.colors.midnight,
     textAlign: 'center',

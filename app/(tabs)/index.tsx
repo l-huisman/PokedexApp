@@ -91,10 +91,10 @@ export default function PokedexScreen() {
     () => (
       <View style={styles.header}>
         <SearchBar onSearch={setSearchQuery} />
-        <Text style={styles.title}>All Pokémon</Text>
+        {!searchQuery && <Text style={styles.title}>All Pokémon</Text>}
       </View>
     ),
-    []
+    [searchQuery]
   );
 
   const ListFooterComponent = useMemo(
@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   header: {
+    marginTop: 16,
     marginBottom: 16,
     marginHorizontal: -DesignTokens.spacing.screenPadding + DesignTokens.spacing.searchMargin,
   },
