@@ -40,9 +40,7 @@ yarn install
 
 ```bash
 yarn start      # Start Expo dev server (choose platform from menu)
-yarn ios        # Run on iOS Simulator
-yarn android    # Run on Android Emulator
-yarn web        # Run in web browser
+npx expo start  # Start Expo dev server
 ```
 
 ### Development
@@ -72,5 +70,3 @@ constants/              # Theme colors, design tokens
 ## Resources
 
 - [REQUIREMENTS.md](./REQUIREMENTS.md) - Full assignment requirements
-- [PokeAPI](https://pokeapi.co/) - Pokemon data source
-- [Figma Design](https://www.figma.com/design/dsgGXcu5WELIvRW90m5308/Pok%C3%A9mon-Code-Challenge) - UI/UX prototype
