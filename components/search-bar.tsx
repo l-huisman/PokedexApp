@@ -6,6 +6,8 @@ import {
   type TextInputProps,
 } from 'react-native';
 import { DesignTokens } from '@/constants/design-tokens';
+import { useTheme } from '@/contexts/theme-context';
+import { useThemedTokens } from '@/hooks/use-themed-tokens';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 interface SearchBarProps extends Omit<TextInputProps, 'onChangeText'> {
@@ -19,6 +21,8 @@ export function SearchBar({
   placeholder = 'Search for Pokémon..',
   ...props
 }: SearchBarProps) {
+  const { isDark } = useTheme();
+  const { colors, shadows } = useThemedTokens();
   const [value, setValue] = useState('');
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -38,19 +42,23 @@ export function SearchBar({
   );
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.cardBackground },
+        shadows.card,
+      ]}>
       <MaterialIcons
         name="search"
         size={DesignTokens.sizes.iconSize}
-        color={DesignTokens.colors.midnight}
-        style={styles.icon}
+        color={colors.midnight}
       />
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: colors.midnight }]}
         value={value}
         onChangeText={handleChangeText}
         placeholder={placeholder}
-        placeholderTextColor="rgba(0, 0, 0, 0.3)"
+        placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.3)'}
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="search"
@@ -64,20 +72,16 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: DesignTokens.colors.cardBackground,
     borderRadius: DesignTokens.borderRadius.searchBar,
     paddingHorizontal: 16,
     paddingVertical: 12,
     marginHorizontal: DesignTokens.spacing.searchMargin,
     gap: 12,
-    ...DesignTokens.shadows.card,
   },
-  icon: {},
   input: {
     flex: 1,
     fontSize: 16,
     fontFamily: 'Rubik_400Regular',
-    color: DesignTokens.colors.midnight,
     padding: 0,
   },
 });

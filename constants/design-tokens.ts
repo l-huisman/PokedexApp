@@ -1,14 +1,34 @@
 import { Platform } from 'react-native';
 
+const lightColors = {
+  background: '#EDF6FF',
+  primary: '#5631E8',
+  midnight: '#0E0940',
+  cardBackground: '#FFFFFF',
+  imageBackground: '#F6F6FF',
+  shadowColor: '#303773',
+  textSecondary: '#6B6B6B',
+  barBackground: '#DBDAE6',
+};
+
+const darkColors = {
+  background: '#121212',
+  primary: '#7B5EF0',
+  midnight: '#E0E0E0',
+  cardBackground: '#1E1E1E',
+  imageBackground: '#2A2A2A',
+  shadowColor: '#000000',
+  textSecondary: '#A0A0A0',
+  barBackground: '#3A3A3A',
+};
+
+export const ThemeColors = {
+  light: lightColors,
+  dark: darkColors,
+} as const;
+
 export const DesignTokens = {
-  colors: {
-    background: '#EDF6FF',
-    primary: '#5631E8',
-    midnight: '#0E0940',
-    cardBackground: '#FFFFFF',
-    imageBackground: '#F6F6FF',
-    shadowColor: '#303773',
-  },
+  colors: lightColors,
   shadows: {
     card: Platform.select({
       ios: {
@@ -58,3 +78,5 @@ export const DesignTokens = {
     favoriteActive: '#FF6B6B',
   },
 } as const;
+
+export type ThemeColorKey = keyof typeof lightColors;

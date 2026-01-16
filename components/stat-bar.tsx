@@ -6,7 +6,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { DesignTokens } from '@/constants/design-tokens';
+import { useThemedColors } from '@/hooks/use-themed-tokens';
 
 interface StatBarProps {
   name: string;
@@ -24,6 +24,7 @@ const STAT_DISPLAY_NAMES: Record<string, string> = {
 };
 
 export function StatBar({ name, value, maxValue = 255 }: StatBarProps) {
+  const colors = useThemedColors();
   const displayName = STAT_DISPLAY_NAMES[name] ?? name;
   const percentage = Math.min((value / maxValue) * 100, 100);
 
@@ -42,11 +43,13 @@ export function StatBar({ name, value, maxValue = 255 }: StatBarProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.name}>{displayName}</Text>
-      <View style={styles.barContainer}>
-        <Animated.View style={[styles.barFill, animatedBarStyle]} />
+      <Text style={[styles.name, { color: colors.midnight }]}>{displayName}</Text>
+      <View style={[styles.barContainer, { backgroundColor: colors.barBackground }]}>
+        <Animated.View
+          style={[styles.barFill, { backgroundColor: colors.primary }, animatedBarStyle]}
+        />
       </View>
-      <Text style={styles.value}>{value}</Text>
+      <Text style={[styles.value, { color: colors.midnight }]}>{value}</Text>
     </View>
   );
 }
@@ -61,25 +64,21 @@ const styles = StyleSheet.create({
     width: 90,
     fontFamily: 'Rubik_500Medium',
     fontSize: 14,
-    color: DesignTokens.colors.midnight,
   },
   barContainer: {
     flex: 1,
     height: 4,
-    backgroundColor: '#DBDAE6',
     borderRadius: 2,
     overflow: 'hidden',
   },
   barFill: {
     height: '100%',
-    backgroundColor: DesignTokens.colors.primary,
     borderRadius: 2,
   },
   value: {
     width: 36,
     fontFamily: 'Rubik_400Regular',
     fontSize: 14,
-    color: DesignTokens.colors.midnight,
     textAlign: 'right',
   },
 });

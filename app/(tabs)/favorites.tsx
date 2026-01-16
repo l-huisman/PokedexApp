@@ -13,6 +13,7 @@ import { PokemonCard } from '@/components/pokemon-card';
 import { SearchBar } from '@/components/search-bar';
 import { SkeletonList } from '@/components/skeletons/skeleton-list';
 import { DesignTokens } from '@/constants/design-tokens';
+import { useThemedColors } from '@/hooks/use-themed-tokens';
 import { useFavoritePokemon, type FavoritePokemonItem } from '@/hooks/use-favorite-pokemon';
 import { getPokemonImageUrl } from '@/lib/api/pokemon';
 
@@ -21,6 +22,7 @@ const COLUMN_COUNT = 2;
 export default function FavoritesScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const colors = useThemedColors();
   const [searchQuery, setSearchQuery] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -72,34 +74,35 @@ export default function FavoritesScreen() {
     () => (
       <View style={styles.header}>
         <SearchBar onSearch={setSearchQuery} placeholder="Search favorites..." />
-        <Text style={styles.title}>My Favorites</Text>
+        <Text style={[styles.title, { color: colors.midnight }]}>My Favorites</Text>
       </View>
     ),
-    []
+    [colors.midnight]
   );
 
   const ListEmptyComponent = useMemo(
     () => (
       <View style={styles.empty}>
-        <Text style={styles.emptyTitle}>
+        <Text style={[styles.emptyTitle, { color: colors.midnight }]}>
           {searchQuery ? 'No matches found' : 'No favorites yet'}
         </Text>
-        <Text style={styles.emptyText}>
+        <Text style={[styles.emptyText, { color: colors.midnight }]}>
           {searchQuery
             ? `No favorites match "${searchQuery}"`
             : 'Tap the heart icon on any Pokémon to add it here!'}
         </Text>
       </View>
     ),
-    [searchQuery]
+    [searchQuery, colors.midnight]
   );
 
   if (isLoading && pokemon.length === 0) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View
+        style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.background }]}>
         <View style={styles.skeletonHeader}>
           <SearchBar onSearch={setSearchQuery} placeholder="Search favorites..." />
-          <Text style={styles.title}>My Favorites</Text>
+          <Text style={[styles.title, { color: colors.midnight }]}>My Favorites</Text>
         </View>
         <SkeletonList count={4} />
       </View>
@@ -108,9 +111,12 @@ export default function FavoritesScreen() {
 
   if (isError && pokemon.length === 0) {
     return (
-      <View style={[styles.centered, { paddingTop: insets.top }]}>
-        <Text style={styles.errorTitle}>Error loading favorites</Text>
-        <Text style={styles.errorText}>
+      <View
+        style={[styles.centered, { paddingTop: insets.top, backgroundColor: colors.background }]}>
+        <Text style={[styles.errorTitle, { color: colors.midnight }]}>
+          Error loading favorites
+        </Text>
+        <Text style={[styles.errorText, { color: colors.midnight }]}>
           {error instanceof Error ? error.message : 'Unknown error'}
         </Text>
       </View>
@@ -118,7 +124,8 @@ export default function FavoritesScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View
+      style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.background }]}>
       <FlatList
         data={filteredPokemon}
         renderItem={renderItem}
@@ -132,7 +139,7 @@ export default function FavoritesScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
-            tintColor={DesignTokens.colors.primary}
+            tintColor={colors.primary}
           />
         }
         showsVerticalScrollIndicator={false}
@@ -145,13 +152,11 @@ export default function FavoritesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: DesignTokens.colors.background,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: DesignTokens.colors.background,
     gap: 12,
   },
   listContent: {
@@ -160,13 +165,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
+    marginTop: 16,
     marginBottom: 16,
     marginHorizontal: -DesignTokens.spacing.screenPadding + DesignTokens.spacing.searchMargin,
   },
   title: {
     fontFamily: 'Rubik_700Bold',
     fontSize: DesignTokens.sizes.headerFontSize,
-    color: DesignTokens.colors.midnight,
     marginTop: 24,
     marginLeft: DesignTokens.spacing.screenPadding - DesignTokens.spacing.searchMargin,
   },
@@ -184,12 +189,10 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: 'Rubik_500Medium',
     fontSize: 18,
-    color: DesignTokens.colors.midnight,
   },
   emptyText: {
     fontFamily: 'Rubik_400Regular',
     fontSize: 14,
-    color: DesignTokens.colors.midnight,
     opacity: 0.6,
     textAlign: 'center',
     paddingHorizontal: 40,
@@ -201,12 +204,10 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontFamily: 'Rubik_500Medium',
     fontSize: 18,
-    color: DesignTokens.colors.midnight,
   },
   errorText: {
     fontFamily: 'Rubik_400Regular',
     fontSize: 14,
-    color: DesignTokens.colors.midnight,
     opacity: 0.6,
   },
 });

@@ -1,4 +1,8 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider as NavigationThemeProvider,
+} from '@react-navigation/native';
 import {
   useFonts,
   Rubik_400Regular,
@@ -12,7 +16,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { ThemeProvider, useTheme } from '@/contexts/theme-context';
 import { QueryProvider } from '@/lib/providers/query-provider';
 
 SplashScreen.preventAutoHideAsync();
@@ -21,8 +25,26 @@ export const unstable_settings = {
   anchor: '(tabs)',
 };
 
+function RootLayoutNav() {
+  const { isDark } = useTheme();
+
+  return (
+    <NavigationThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="pokemon/[id]"
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+    </NavigationThemeProvider>
+  );
+}
+
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [fontsLoaded, fontError] = useFonts({
     Rubik_400Regular,
     Rubik_500Medium,
@@ -42,17 +64,8 @@ export default function RootLayout() {
 
   return (
     <QueryProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="pokemon/[id]"
-            options={{
-              headerShown: false,
-            }}
-          />
-        </Stack>
-        <StatusBar style="auto" />
+      <ThemeProvider>
+        <RootLayoutNav />
       </ThemeProvider>
     </QueryProvider>
   );

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { DesignTokens } from '@/constants/design-tokens';
+import { useThemedColors } from '@/hooks/use-themed-tokens';
 import type { PokemonDetail } from '@/lib/api/types';
 
 interface AboutTabProps {
@@ -9,18 +9,21 @@ interface AboutTabProps {
 interface InfoRowProps {
   label: string;
   value: string;
+  labelColor: string;
+  valueColor: string;
 }
 
-function InfoRow({ label, value }: InfoRowProps) {
+function InfoRow({ label, value, labelColor, valueColor }: InfoRowProps) {
   return (
     <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value}>{value}</Text>
+      <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
+      <Text style={[styles.value, { color: valueColor }]}>{value}</Text>
     </View>
   );
 }
 
 export function AboutTab({ pokemon }: AboutTabProps) {
+  const colors = useThemedColors();
   const formattedId = pokemon.id.toString().padStart(3, '0');
   const weightKg = (pokemon.weight / 10).toFixed(1);
   const heightM = (pokemon.height / 10).toFixed(1);
@@ -34,16 +37,18 @@ export function AboutTab({ pokemon }: AboutTabProps) {
 
   return (
     <View style={styles.container}>
-      <InfoRow label="Name" value={formattedName} />
-      <InfoRow label="ID" value={formattedId} />
+      <InfoRow label="Name" value={formattedName} labelColor={colors.midnight} valueColor={colors.midnight} />
+      <InfoRow label="ID" value={formattedId} labelColor={colors.midnight} valueColor={colors.midnight} />
       <InfoRow
         label="Base"
         value={pokemon.base_experience ? `${pokemon.base_experience} XP` : '-'}
+        labelColor={colors.midnight}
+        valueColor={colors.midnight}
       />
-      <InfoRow label="Weight" value={`${weightKg} kg`} />
-      <InfoRow label="Height" value={`${heightM} m`} />
-      <InfoRow label="Types" value={types} />
-      <InfoRow label="Abilities" value={abilities} />
+      <InfoRow label="Weight" value={`${weightKg} kg`} labelColor={colors.midnight} valueColor={colors.midnight} />
+      <InfoRow label="Height" value={`${heightM} m`} labelColor={colors.midnight} valueColor={colors.midnight} />
+      <InfoRow label="Types" value={types} labelColor={colors.midnight} valueColor={colors.midnight} />
+      <InfoRow label="Abilities" value={abilities} labelColor={colors.midnight} valueColor={colors.midnight} />
     </View>
   );
 }
@@ -61,14 +66,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Rubik_500Medium',
     fontSize: 14,
     lineHeight: 18,
-    color: DesignTokens.colors.midnight,
   },
   value: {
     flex: 1,
     fontFamily: 'Rubik_400Regular',
     fontSize: 14,
     lineHeight: 18,
-    color: DesignTokens.colors.midnight,
     opacity: 0.65,
     textTransform: 'capitalize',
   },

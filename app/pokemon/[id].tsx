@@ -25,6 +25,7 @@ import { AboutTab } from '@/components/detail-tabs/about-tab';
 import { StatsTab } from '@/components/detail-tabs/stats-tab';
 import { EvolutionTab } from '@/components/detail-tabs/evolution-tab';
 import { DesignTokens } from '@/constants/design-tokens';
+import { useThemedTokens } from '@/hooks/use-themed-tokens';
 import { usePokemonFullData } from '@/hooks/use-pokemon-detail';
 import { useFavorites } from '@/hooks/use-favorites';
 import { getPokemonImageUrl } from '@/lib/api/pokemon';
@@ -40,6 +41,7 @@ const TABS: { key: TabName; label: string }[] = [
 export default function PokemonDetailScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors, detail: themeDetail } = useThemedTokens();
   const { id } = useLocalSearchParams<{ id: string }>();
   const pokemonId = id ? parseInt(id, 10) : undefined;
 
@@ -110,19 +112,25 @@ export default function PokemonDetailScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.centered, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={DesignTokens.colors.primary} />
-        <Text style={styles.loadingText}>Loading Pokémon...</Text>
+      <View
+        style={[styles.centered, { paddingTop: insets.top, backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.midnight }]}>Loading Pokémon...</Text>
       </View>
     );
   }
 
   if (isError || !data) {
     return (
-      <View style={[styles.centered, { paddingTop: insets.top }]}>
-        <Text style={styles.errorTitle}>Error loading Pokémon</Text>
-        <Text style={styles.errorText}>{error?.message ?? 'Unknown error'}</Text>
-        <Pressable style={styles.backButton} onPress={handleBack}>
+      <View
+        style={[styles.centered, { paddingTop: insets.top, backgroundColor: colors.background }]}>
+        <Text style={[styles.errorTitle, { color: colors.midnight }]}>Error loading Pokémon</Text>
+        <Text style={[styles.errorText, { color: colors.midnight }]}>
+          {error?.message ?? 'Unknown error'}
+        </Text>
+        <Pressable
+          style={[styles.backButton, { backgroundColor: colors.primary }]}
+          onPress={handleBack}>
           <Text style={styles.backButtonText}>Go Back</Text>
         </Pressable>
       </View>
@@ -135,7 +143,7 @@ export default function PokemonDetailScreen() {
   const imageUrl = getPokemonImageUrl(detail.id, true);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
@@ -156,9 +164,9 @@ export default function PokemonDetailScreen() {
             <MaterialIcons
               name="chevron-left"
               size={24}
-              color={DesignTokens.colors.midnight}
+              color={colors.midnight}
             />
-            <Text style={styles.backText}>Back</Text>
+            <Text style={[styles.backText, { color: colors.midnight }]}>Back</Text>
           </Pressable>
 
           <View style={styles.headerActions}>
@@ -172,7 +180,7 @@ export default function PokemonDetailScreen() {
               <MaterialIcons
                 name="share"
                 size={24}
-                color={DesignTokens.colors.midnight}
+                color={colors.midnight}
               />
             </Pressable>
 
@@ -187,7 +195,7 @@ export default function PokemonDetailScreen() {
                 <MaterialIcons
                   name={isFav ? 'favorite' : 'favorite-border'}
                   size={24}
-                  color={isFav ? DesignTokens.detail.favoriteActive : DesignTokens.colors.midnight}
+                  color={isFav ? themeDetail.favoriteActive : colors.midnight}
                 />
               </Animated.View>
             </Pressable>
@@ -196,8 +204,8 @@ export default function PokemonDetailScreen() {
 
         {/* Pokemon Info */}
         <View style={styles.titleRow}>
-          <Text style={styles.name}>{formattedName}</Text>
-          <Text style={styles.id}>{formattedId}</Text>
+          <Text style={[styles.name, { color: colors.midnight }]}>{formattedName}</Text>
+          <Text style={[styles.id, { color: colors.midnight }]}>{formattedId}</Text>
         </View>
 
         {/* Type Badges */}
@@ -218,7 +226,7 @@ export default function PokemonDetailScreen() {
         </View>
 
         {/* White Card */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
           {/* Tab Bar */}
           <View style={styles.tabBar}>
             {TABS.map((tab) => (
@@ -229,8 +237,8 @@ export default function PokemonDetailScreen() {
                   {
                     borderBottomColor:
                       activeTab === tab.key
-                        ? DesignTokens.detail.tabUnderlineActive
-                        : DesignTokens.detail.tabUnderlineInactive,
+                        ? themeDetail.tabUnderlineActive
+                        : themeDetail.tabUnderlineInactive,
                   },
                 ]}
                 onPress={() => setActiveTab(tab.key)}
@@ -240,6 +248,7 @@ export default function PokemonDetailScreen() {
                 <Text
                   style={[
                     styles.tabText,
+                    { color: colors.midnight },
                     activeTab !== tab.key && styles.tabTextInactive,
                   ]}
                 >
@@ -266,7 +275,6 @@ export default function PokemonDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: DesignTokens.colors.background,
   },
   scrollView: {
     flex: 1,
@@ -278,24 +286,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: DesignTokens.colors.background,
     gap: 12,
     padding: 24,
   },
   loadingText: {
     fontFamily: 'Rubik_400Regular',
     fontSize: 16,
-    color: DesignTokens.colors.midnight,
   },
   errorTitle: {
     fontFamily: 'Rubik_500Medium',
     fontSize: 18,
-    color: DesignTokens.colors.midnight,
   },
   errorText: {
     fontFamily: 'Rubik_400Regular',
     fontSize: 14,
-    color: DesignTokens.colors.midnight,
     opacity: 0.6,
     textAlign: 'center',
   },
@@ -303,7 +307,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    backgroundColor: DesignTokens.colors.primary,
     borderRadius: 8,
   },
   backButtonText: {
@@ -330,7 +333,6 @@ const styles = StyleSheet.create({
   backText: {
     fontFamily: 'Rubik_400Regular',
     fontSize: 17,
-    color: DesignTokens.colors.midnight,
     marginLeft: 4,
   },
   titleRow: {
@@ -343,12 +345,10 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: 'Rubik_700Bold',
     fontSize: DesignTokens.sizes.detailNameFontSize,
-    color: DesignTokens.colors.midnight,
   },
   id: {
     fontFamily: 'Rubik_400Regular',
     fontSize: DesignTokens.sizes.detailIdFontSize,
-    color: DesignTokens.colors.midnight,
     opacity: 0.3,
   },
   typeBadges: {
@@ -368,7 +368,6 @@ const styles = StyleSheet.create({
     height: DesignTokens.sizes.detailImageSize,
   },
   card: {
-    backgroundColor: DesignTokens.colors.cardBackground,
     paddingTop: 74,
     paddingHorizontal: DesignTokens.spacing.screenPadding,
     paddingBottom: 40,
@@ -387,7 +386,6 @@ const styles = StyleSheet.create({
   tabText: {
     fontFamily: 'Rubik_600SemiBold',
     fontSize: 14,
-    color: DesignTokens.colors.midnight,
     textAlign: 'center',
   },
   tabTextInactive: {

@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { DesignTokens } from '@/constants/design-tokens';
+import { useThemedTokens } from '@/hooks/use-themed-tokens';
 
 interface PokemonCardProps {
   id: number;
@@ -29,6 +30,7 @@ export function PokemonCard({
   onPress,
   onMenuPress,
 }: PokemonCardProps) {
+  const { colors, shadows } = useThemedTokens();
   const formattedId = id.toString().padStart(3, '0');
   const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
 
@@ -47,7 +49,13 @@ export function PokemonCard({
   }, [scale]);
 
   return (
-    <Animated.View style={[styles.container, animatedStyle]}>
+    <Animated.View
+      style={[
+        styles.container,
+        { backgroundColor: colors.cardBackground },
+        shadows.card,
+        animatedStyle,
+      ]}>
       <Pressable
         onPress={onPress}
         onPressIn={handlePressIn}
@@ -55,19 +63,19 @@ export function PokemonCard({
         accessibilityLabel={`${formattedName}, number ${formattedId}`}
         accessibilityRole="button"
       >
-        <View style={styles.imageContainer}>
+        <View style={[styles.imageContainer, { backgroundColor: colors.imageBackground }]}>
           <Image
             source={{ uri: imageUrl }}
             style={styles.image}
             contentFit="contain"
             transition={200}
           />
-          <View style={styles.badge}>
+          <View style={[styles.badge, { backgroundColor: colors.primary }]}>
             <Text style={styles.badgeText}>{formattedId}</Text>
           </View>
         </View>
         <View style={styles.footer}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text style={[styles.name, { color: colors.midnight }]} numberOfLines={1}>
             {formattedName}
           </Text>
           {onMenuPress && (
@@ -80,7 +88,7 @@ export function PokemonCard({
               <MaterialIcons
                 name="more-vert"
                 size={20}
-                color={DesignTokens.colors.midnight}
+                color={colors.midnight}
               />
             </Pressable>
           )}
@@ -93,14 +101,11 @@ export function PokemonCard({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: DesignTokens.colors.cardBackground,
     borderRadius: DesignTokens.borderRadius.card,
     overflow: 'hidden',
-    ...DesignTokens.shadows.card,
   },
   imageContainer: {
     height: DesignTokens.sizes.cardImageHeight,
-    backgroundColor: DesignTokens.colors.imageBackground,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -112,7 +117,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     left: 8,
-    backgroundColor: DesignTokens.colors.primary,
     paddingHorizontal: 6,
     paddingTop: 4,
     paddingBottom: 2,
@@ -133,7 +137,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'Rubik_500Medium',
     fontSize: DesignTokens.sizes.nameFontSize,
-    color: DesignTokens.colors.midnight,
     lineHeight: 19.2,
   },
 });

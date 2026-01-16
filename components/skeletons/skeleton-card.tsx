@@ -9,10 +9,14 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { DesignTokens } from '@/constants/design-tokens';
+import { useTheme } from '@/contexts/theme-context';
+import { useThemedTokens } from '@/hooks/use-themed-tokens';
 
 const SHIMMER_DURATION = 1000;
 
 export function SkeletonCard() {
+  const { isDark } = useTheme();
+  const { colors, shadows } = useThemedTokens();
   const translateX = useSharedValue(-1);
 
   useEffect(() => {
@@ -30,25 +34,32 @@ export function SkeletonCard() {
     transform: [{ translateX: translateX.value * 150 }],
   }));
 
+  const shimmerColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.4)';
+  const placeholderColor = isDark ? '#3A3A3A' : '#E0E0E0';
+
   return (
     <View
-      style={styles.container}
+      style={[
+        styles.container,
+        { backgroundColor: colors.cardBackground },
+        shadows.card,
+      ]}
       accessibilityLabel="Loading Pokemon card"
       accessibilityRole="progressbar"
     >
-      <View style={styles.imageContainer}>
+      <View style={[styles.imageContainer, { backgroundColor: colors.imageBackground }]}>
         <Animated.View style={[styles.shimmer, shimmerStyle]}>
           <LinearGradient
-            colors={['transparent', 'rgba(255,255,255,0.4)', 'transparent']}
+            colors={['transparent', shimmerColor, 'transparent']}
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.5 }}
             style={styles.gradient}
           />
         </Animated.View>
-        <View style={styles.badge} />
+        <View style={[styles.badge, { backgroundColor: placeholderColor }]} />
       </View>
       <View style={styles.footer}>
-        <View style={styles.namePlaceholder} />
+        <View style={[styles.namePlaceholder, { backgroundColor: placeholderColor }]} />
       </View>
     </View>
   );
@@ -57,14 +68,11 @@ export function SkeletonCard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: DesignTokens.colors.cardBackground,
     borderRadius: DesignTokens.borderRadius.card,
     overflow: 'hidden',
-    ...DesignTokens.shadows.card,
   },
   imageContainer: {
     height: DesignTokens.sizes.cardImageHeight,
-    backgroundColor: DesignTokens.colors.imageBackground,
     overflow: 'hidden',
   },
   shimmer: {
@@ -79,7 +87,6 @@ const styles = StyleSheet.create({
     left: 8,
     width: 40,
     height: 20,
-    backgroundColor: '#E0E0E0',
     borderRadius: DesignTokens.borderRadius.badge,
   },
   footer: {
@@ -88,7 +95,6 @@ const styles = StyleSheet.create({
   namePlaceholder: {
     height: 19,
     width: '70%',
-    backgroundColor: '#E0E0E0',
     borderRadius: 4,
   },
 });

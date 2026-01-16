@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { EvolutionCard } from '@/components/evolution-card';
-import { DesignTokens } from '@/constants/design-tokens';
+import { useThemedColors } from '@/hooks/use-themed-tokens';
 import { extractIdFromUrl } from '@/lib/api/pokemon';
 import type { ChainLink } from '@/lib/api/types';
 
@@ -33,6 +33,7 @@ function flattenEvolutionChain(chain: ChainLink): EvolutionStage[] {
 
 export function EvolutionTab({ chain }: EvolutionTabProps) {
   const router = useRouter();
+  const colors = useThemedColors();
   const stages = flattenEvolutionChain(chain);
 
   const handlePress = useCallback(
@@ -53,7 +54,7 @@ export function EvolutionTab({ chain }: EvolutionTabProps) {
           />
           {index < stages.length - 1 && (
             <View style={styles.connector}>
-              <View style={styles.line} />
+              <View style={[styles.line, { backgroundColor: colors.midnight }]} />
             </View>
           )}
         </View>
@@ -73,7 +74,6 @@ const styles = StyleSheet.create({
   line: {
     width: 2,
     height: 14,
-    backgroundColor: DesignTokens.colors.midnight,
     opacity: 0.2,
     borderRadius: 1,
   },

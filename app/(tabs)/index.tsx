@@ -2,6 +2,8 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
+  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
@@ -9,11 +11,14 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { PokemonCard } from '@/components/pokemon-card';
 import { SearchBar } from '@/components/search-bar';
 import { SkeletonList } from '@/components/skeletons/skeleton-list';
+import { ThemeSelector } from '@/components/theme-selector';
 import { DesignTokens } from '@/constants/design-tokens';
+import { useThemedColors } from '@/hooks/use-themed-tokens';
 import { usePokemonList, type PokemonListItem } from '@/hooks/use-pokemon-list';
 import { getPokemonImageUrl } from '@/lib/api/pokemon';
 
@@ -22,7 +27,9 @@ const COLUMN_COUNT = 2;
 export default function PokedexScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const colors = useThemedColors();
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
 
   const {
     data,
@@ -90,42 +97,57 @@ export default function PokedexScreen() {
   const ListHeaderComponent = useMemo(
     () => (
       <View style={styles.header}>
-        <SearchBar onSearch={setSearchQuery} />
-        {!searchQuery && <Text style={styles.title}>All Pokémon</Text>}
+        <View style={styles.searchRow}>
+          <View style={styles.searchContainer}>
+            <SearchBar onSearch={setSearchQuery} />
+          </View>
+          <Pressable
+            style={[styles.settingsButton, { backgroundColor: colors.cardBackground }]}
+            onPress={() => setShowSettings(true)}
+            accessibilityLabel="Settings"
+            accessibilityRole="button"
+          >
+            <MaterialIcons name="settings" size={24} color={colors.midnight} />
+          </Pressable>
+        </View>
+        {!searchQuery && (
+          <Text style={[styles.title, { color: colors.midnight }]}>All Pokémon</Text>
+        )}
       </View>
     ),
-    [searchQuery]
+    [searchQuery, colors.midnight, colors.cardBackground]
   );
 
   const ListFooterComponent = useMemo(
     () =>
       isFetchingNextPage ? (
         <View style={styles.footer}>
-          <ActivityIndicator size="small" color={DesignTokens.colors.primary} />
+          <ActivityIndicator size="small" color={colors.primary} />
         </View>
       ) : null,
-    [isFetchingNextPage]
+    [isFetchingNextPage, colors.primary]
   );
 
   const ListEmptyComponent = useMemo(
     () => (
       <View style={styles.empty}>
-        <Text style={styles.emptyText}>
+        <Text style={[styles.emptyText, { color: colors.midnight }]}>
           {searchQuery
             ? `No Pokémon found for "${searchQuery}"`
             : 'No Pokémon available'}
         </Text>
       </View>
     ),
-    [searchQuery]
+    [searchQuery, colors.midnight]
   );
 
   if (isLoading) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View
+        style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.background }]}>
         <View style={styles.skeletonHeader}>
           <SearchBar onSearch={setSearchQuery} />
-          <Text style={styles.title}>All Pokémon</Text>
+          <Text style={[styles.title, { color: colors.midnight }]}>All Pokémon</Text>
         </View>
         <SkeletonList count={6} />
       </View>
@@ -134,15 +156,21 @@ export default function PokedexScreen() {
 
   if (isError) {
     return (
-      <View style={[styles.centered, { paddingTop: insets.top }]}>
-        <Text style={styles.errorTitle}>Error loading Pokémon</Text>
-        <Text style={styles.errorText}>{error?.message ?? 'Unknown error'}</Text>
+      <View
+        style={[styles.centered, { paddingTop: insets.top, backgroundColor: colors.background }]}>
+        <Text style={[styles.errorTitle, { color: colors.midnight }]}>
+          Error loading Pokémon
+        </Text>
+        <Text style={[styles.errorText, { color: colors.midnight }]}>
+          {error?.message ?? 'Unknown error'}
+        </Text>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View
+      style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.background }]}>
       <FlatList
         data={filteredPokemon}
         renderItem={renderItem}
@@ -159,12 +187,28 @@ export default function PokedexScreen() {
           <RefreshControl
             refreshing={isRefetching}
             onRefresh={handleRefresh}
-            tintColor={DesignTokens.colors.primary}
+            tintColor={colors.primary}
           />
         }
         showsVerticalScrollIndicator={false}
         removeClippedSubviews
       />
+
+      <Modal
+        visible={showSettings}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSettings(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setShowSettings(false)}
+        >
+          <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
+            <ThemeSelector />
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -172,13 +216,11 @@ export default function PokedexScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: DesignTokens.colors.background,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: DesignTokens.colors.background,
     gap: 12,
   },
   listContent: {
@@ -190,10 +232,24 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     marginHorizontal: -DesignTokens.spacing.screenPadding + DesignTokens.spacing.searchMargin,
   },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: DesignTokens.spacing.searchMargin,
+  },
+  searchContainer: {
+    flex: 1,
+  },
+  settingsButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   title: {
     fontFamily: 'Rubik_700Bold',
     fontSize: DesignTokens.sizes.headerFontSize,
-    color: DesignTokens.colors.midnight,
     marginTop: 24,
     marginLeft: DesignTokens.spacing.screenPadding - DesignTokens.spacing.searchMargin,
   },
@@ -212,7 +268,6 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: 'Rubik_400Regular',
     fontSize: 16,
-    color: DesignTokens.colors.midnight,
     opacity: 0.6,
   },
   skeletonHeader: {
@@ -222,12 +277,21 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontFamily: 'Rubik_500Medium',
     fontSize: 18,
-    color: DesignTokens.colors.midnight,
   },
   errorText: {
     fontFamily: 'Rubik_400Regular',
     fontSize: 14,
-    color: DesignTokens.colors.midnight,
     opacity: 0.6,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: 400,
   },
 });
