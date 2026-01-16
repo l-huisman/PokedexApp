@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -12,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PokemonCard } from '@/components/pokemon-card';
 import { SearchBar } from '@/components/search-bar';
+import { SkeletonList } from '@/components/skeletons/skeleton-list';
 import { DesignTokens } from '@/constants/design-tokens';
 import { useFavoritePokemon, type FavoritePokemonItem } from '@/hooks/use-favorite-pokemon';
 import { getPokemonImageUrl } from '@/lib/api/pokemon';
@@ -96,9 +96,12 @@ export default function FavoritesScreen() {
 
   if (isLoading && pokemon.length === 0) {
     return (
-      <View style={[styles.centered, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={DesignTokens.colors.primary} />
-        <Text style={styles.loadingText}>Loading favorites...</Text>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.skeletonHeader}>
+          <SearchBar onSearch={setSearchQuery} placeholder="Search favorites..." />
+          <Text style={styles.title}>My Favorites</Text>
+        </View>
+        <SkeletonList count={4} />
       </View>
     );
   }
@@ -191,10 +194,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 40,
   },
-  loadingText: {
-    fontFamily: 'Rubik_400Regular',
-    fontSize: 16,
-    color: DesignTokens.colors.midnight,
+  skeletonHeader: {
+    marginBottom: 16,
+    marginHorizontal: DesignTokens.spacing.searchMargin,
   },
   errorTitle: {
     fontFamily: 'Rubik_500Medium',

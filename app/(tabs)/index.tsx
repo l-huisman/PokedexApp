@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PokemonCard } from '@/components/pokemon-card';
 import { SearchBar } from '@/components/search-bar';
+import { SkeletonList } from '@/components/skeletons/skeleton-list';
 import { DesignTokens } from '@/constants/design-tokens';
 import { usePokemonList, type PokemonListItem } from '@/hooks/use-pokemon-list';
 import { getPokemonImageUrl } from '@/lib/api/pokemon';
@@ -121,9 +122,12 @@ export default function PokedexScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.centered, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={DesignTokens.colors.primary} />
-        <Text style={styles.loadingText}>Loading Pokémon...</Text>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.skeletonHeader}>
+          <SearchBar onSearch={setSearchQuery} />
+          <Text style={styles.title}>All Pokémon</Text>
+        </View>
+        <SkeletonList count={6} />
       </View>
     );
   }
@@ -210,10 +214,9 @@ const styles = StyleSheet.create({
     color: DesignTokens.colors.midnight,
     opacity: 0.6,
   },
-  loadingText: {
-    fontFamily: 'Rubik_400Regular',
-    fontSize: 16,
-    color: DesignTokens.colors.midnight,
+  skeletonHeader: {
+    marginBottom: 16,
+    marginHorizontal: DesignTokens.spacing.searchMargin,
   },
   errorTitle: {
     fontFamily: 'Rubik_500Medium',

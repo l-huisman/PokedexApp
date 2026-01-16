@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -12,6 +12,13 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { TypeBadge } from '@/components/type-badge';
 import { AboutTab } from '@/components/detail-tabs/about-tab';
@@ -42,15 +49,47 @@ export default function PokemonDetailScreen() {
 
   const isFav = pokemonId ? isFavorite(pokemonId) : false;
 
+  // Animation values
+  const heartScale = useSharedValue(1);
+  const tabOpacity = useSharedValue(1);
+
+  const heartAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: heartScale.value }],
+  }));
+
+  const tabAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: tabOpacity.value,
+  }));
+
+  // Animate tab content on tab change (skip initial mount)
+  const isFirstRender = useSharedValue(true);
+
+  useEffect(() => {
+    if (isFirstRender.value) {
+      isFirstRender.value = false;
+      return;
+    }
+    tabOpacity.value = withSequence(
+      withTiming(0, { duration: 100 }),
+      withTiming(1, { duration: 200 })
+    );
+  }, [activeTab, tabOpacity, isFirstRender]);
+
   const handleBack = useCallback(() => {
     router.back();
   }, [router]);
 
   const handleFavoriteToggle = useCallback(async () => {
+    // Trigger heart pulse animation
+    heartScale.value = withSequence(
+      withSpring(1.3, { damping: 4, stiffness: 200 }),
+      withSpring(1, { damping: 6, stiffness: 200 })
+    );
+
     if (pokemonId) {
       await toggleFavorite(pokemonId);
     }
-  }, [pokemonId, toggleFavorite]);
+  }, [pokemonId, toggleFavorite, heartScale]);
 
   const handleShare = useCallback(async () => {
     if (!data?.detail) return;
@@ -144,11 +183,13 @@ export default function PokemonDetailScreen() {
               accessibilityLabel={isFav ? 'Remove from favorites' : 'Add to favorites'}
               accessibilityRole="button"
             >
-              <MaterialIcons
-                name={isFav ? 'favorite' : 'favorite-border'}
-                size={24}
-                color={isFav ? DesignTokens.detail.favoriteActive : DesignTokens.colors.midnight}
-              />
+              <Animated.View style={heartAnimatedStyle}>
+                <MaterialIcons
+                  name={isFav ? 'favorite' : 'favorite-border'}
+                  size={24}
+                  color={isFav ? DesignTokens.detail.favoriteActive : DesignTokens.colors.midnight}
+                />
+              </Animated.View>
             </Pressable>
           </View>
         </View>
@@ -208,14 +249,14 @@ export default function PokemonDetailScreen() {
             ))}
           </View>
 
-          {/* Tab Content */}
-          <View style={styles.tabContent}>
+          {/* Tab Content with fade animation */}
+          <Animated.View style={[styles.tabContent, tabAnimatedStyle]}>
             {activeTab === 'about' && <AboutTab pokemon={detail} />}
             {activeTab === 'stats' && <StatsTab pokemon={detail} />}
             {activeTab === 'evolution' && (
               <EvolutionTab chain={evolutionChain.chain} />
             )}
-          </View>
+          </Animated.View>
         </View>
       </ScrollView>
     </View>

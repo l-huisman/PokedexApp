@@ -1,4 +1,11 @@
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { DesignTokens } from '@/constants/design-tokens';
 
 interface StatBarProps {
@@ -20,11 +27,24 @@ export function StatBar({ name, value, maxValue = 255 }: StatBarProps) {
   const displayName = STAT_DISPLAY_NAMES[name] ?? name;
   const percentage = Math.min((value / maxValue) * 100, 100);
 
+  const widthProgress = useSharedValue(0);
+
+  useEffect(() => {
+    widthProgress.value = withTiming(percentage, {
+      duration: 800,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [percentage, widthProgress]);
+
+  const animatedBarStyle = useAnimatedStyle(() => ({
+    width: `${widthProgress.value}%`,
+  }));
+
   return (
     <View style={styles.container}>
       <Text style={styles.name}>{displayName}</Text>
       <View style={styles.barContainer}>
-        <View style={[styles.barFill, { width: `${percentage}%` }]} />
+        <Animated.View style={[styles.barFill, animatedBarStyle]} />
       </View>
       <Text style={styles.value}>{value}</Text>
     </View>
