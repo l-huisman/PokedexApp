@@ -50,7 +50,7 @@ Loading and error states required for:
 
 ## Optional Features (+1 point each)
 - [x] UI animations (loading states, transitions)
-- [ ] Dark mode support with theming
+- [x] Dark mode support with theming
 - [x] Pagination with infinite scroll (50 items per load)
 - [x] Type-safe code (no `any`, casting, or TS ignores)
 - [x] Pixel-perfect iOS or Android design
