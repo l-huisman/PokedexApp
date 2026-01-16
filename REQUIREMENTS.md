@@ -60,11 +60,6 @@ Loading and error states required for:
 
 ---
 
-## Design Reference
-Ask which frame you want to use then the user will select it in Figma so you may use the MCP to access the design reference.
-
----
-
 ## Submission
 1. Push project to GitHub
 2. Send GitHub link via Microsoft Teams
