@@ -1,50 +1,76 @@
-# Welcome to your Expo app 👋
+# Pokedex App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native Pokedex application built with Expo, featuring a modern UI with dark mode support, infinite scrolling, and offline favorites persistence.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Pokemon List** - Browse Pokemon with search and type filtering
+- **Pokemon Details** - View metadata, base stats, and evolution chains
+- **Favorites** - Save favorite Pokemon with SQLite persistence
+- **Type Badges** - Unique colors for each Pokemon type
+- **Dark Mode** - Full light/dark theme support
+- **Infinite Scroll** - Paginated loading (50 items per page)
+- **Smooth Animations** - Powered by React Native Reanimated
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- **Framework:** Expo 54 + React Native 0.81
+- **Language:** TypeScript (strict mode)
+- **UI:** React 19 + StyleSheet API
+- **Routing:** Expo Router (file-based)
+- **API State:** TanStack Query v5
+- **Local Storage:** expo-sqlite
+- **Animations:** react-native-reanimated
 
-   ```bash
-   npx expo start
-   ```
+## Getting Started
 
-In the output, you'll find options to open the app in a
+### Prerequisites
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Node.js (LTS recommended)
+- Yarn package manager
+- [Expo Go](https://expo.dev/go) app on iOS/Android, or an emulator
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Installation
 
 ```bash
-npm run reset-project
+yarn install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Running the App
 
-## Learn more
+```bash
+yarn start      # Start Expo dev server (choose platform from menu)
+yarn ios        # Run on iOS Simulator
+yarn android    # Run on Android Emulator
+yarn web        # Run in web browser
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### Development
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+yarn lint       # Run ESLint
+```
 
-## Join the community
+## Project Structure
 
-Join our community of developers creating universal apps.
+```
+app/                    # Screens (Expo Router file-based routing)
+├── _layout.tsx         # Root layout with providers
+├── (tabs)/             # Tab navigation group
+└── pokemon/            # Pokemon detail screens
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+components/             # Reusable UI components
+├── themed-*.tsx        # Theme-aware components
+├── pokemon/            # Pokemon-specific components
+└── ui/                 # UI primitives
+
+hooks/                  # Custom React hooks
+lib/                    # API clients, database, providers
+constants/              # Theme colors, design tokens
+```
+
+## Resources
+
+- [REQUIREMENTS.md](./REQUIREMENTS.md) - Full assignment requirements
+- [PokeAPI](https://pokeapi.co/) - Pokemon data source
+- [Figma Design](https://www.figma.com/design/dsgGXcu5WELIvRW90m5308/Pok%C3%A9mon-Code-Challenge) - UI/UX prototype
