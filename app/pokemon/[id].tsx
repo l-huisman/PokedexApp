@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  LayoutChangeEvent,
   Pressable,
   ScrollView,
   Share,
@@ -17,8 +18,8 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withSequence,
-  withTiming,
 } from 'react-native-reanimated';
+import PagerView, { PagerViewOnPageSelectedEvent, PagerViewOnPageScrollEvent } from 'react-native-pager-view';
 
 import { TypeBadge } from '@/components/type-badge';
 import { AboutTab } from '@/components/detail-tabs/about-tab';
@@ -46,36 +47,44 @@ export default function PokemonDetailScreen() {
   const pokemonId = id ? parseInt(id, 10) : undefined;
 
   const [activeTab, setActiveTab] = useState<TabName>('about');
+  const [tabBarWidth, setTabBarWidth] = useState(0);
   const { data, isLoading, isError, error } = usePokemonFullData(pokemonId);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const pagerRef = useRef<PagerView>(null);
 
   const isFav = pokemonId ? isFavorite(pokemonId) : false;
+  const tabWidth = tabBarWidth / TABS.length;
 
   // Animation values
   const heartScale = useSharedValue(1);
-  const tabOpacity = useSharedValue(1);
+  const tabScrollPosition = useSharedValue(0);
 
   const heartAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: heartScale.value }],
   }));
 
-  const tabAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: tabOpacity.value,
+  // Animated underline that follows swipe gesture
+  const tabUnderlineStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: tabScrollPosition.value * tabWidth }],
   }));
 
-  // Animate tab content on tab change (skip initial mount)
-  const isFirstRender = useSharedValue(true);
+  const handleTabBarLayout = useCallback((e: LayoutChangeEvent) => {
+    setTabBarWidth(e.nativeEvent.layout.width);
+  }, []);
 
-  useEffect(() => {
-    if (isFirstRender.value) {
-      isFirstRender.value = false;
-      return;
-    }
-    tabOpacity.value = withSequence(
-      withTiming(0, { duration: 100 }),
-      withTiming(1, { duration: 200 })
-    );
-  }, [activeTab, tabOpacity, isFirstRender]);
+  const handlePageSelected = useCallback((e: PagerViewOnPageSelectedEvent) => {
+    const pageIndex = e.nativeEvent.position;
+    setActiveTab(TABS[pageIndex].key);
+  }, []);
+
+  const handlePageScroll = useCallback((e: PagerViewOnPageScrollEvent) => {
+    const { position, offset } = e.nativeEvent;
+    tabScrollPosition.value = position + offset;
+  }, [tabScrollPosition]);
+
+  const handleTabPress = useCallback((index: number) => {
+    pagerRef.current?.setPage(index);
+  }, []);
 
   const handleBack = useCallback(() => {
     router.back();
@@ -228,20 +237,12 @@ export default function PokemonDetailScreen() {
         {/* White Card */}
         <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
           {/* Tab Bar */}
-          <View style={styles.tabBar}>
-            {TABS.map((tab) => (
+          <View style={styles.tabBar} onLayout={handleTabBarLayout}>
+            {TABS.map((tab, index) => (
               <Pressable
                 key={tab.key}
-                style={[
-                  styles.tab,
-                  {
-                    borderBottomColor:
-                      activeTab === tab.key
-                        ? themeDetail.tabUnderlineActive
-                        : themeDetail.tabUnderlineInactive,
-                  },
-                ]}
-                onPress={() => setActiveTab(tab.key)}
+                style={styles.tab}
+                onPress={() => handleTabPress(index)}
                 accessibilityRole="tab"
                 accessibilityState={{ selected: activeTab === tab.key }}
               >
@@ -256,16 +257,34 @@ export default function PokemonDetailScreen() {
                 </Text>
               </Pressable>
             ))}
+            {/* Animated underline indicator */}
+            <Animated.View
+              style={[
+                styles.tabUnderline,
+                { width: tabWidth, backgroundColor: themeDetail.tabUnderlineActive },
+                tabUnderlineStyle,
+              ]}
+            />
           </View>
 
-          {/* Tab Content with fade animation */}
-          <Animated.View style={[styles.tabContent, tabAnimatedStyle]}>
-            {activeTab === 'about' && <AboutTab pokemon={detail} />}
-            {activeTab === 'stats' && <StatsTab pokemon={detail} />}
-            {activeTab === 'evolution' && (
+          {/* Swipeable Tab Content */}
+          <PagerView
+            ref={pagerRef}
+            style={styles.pagerView}
+            initialPage={0}
+            onPageSelected={handlePageSelected}
+            onPageScroll={handlePageScroll}
+          >
+            <View key="about" style={styles.pageContainer}>
+              <AboutTab pokemon={detail} />
+            </View>
+            <View key="stats" style={styles.pageContainer}>
+              <StatsTab pokemon={detail} />
+            </View>
+            <View key="evolution" style={styles.pageContainer}>
               <EvolutionTab chain={evolutionChain.chain} />
-            )}
-          </Animated.View>
+            </View>
+          </PagerView>
         </View>
       </ScrollView>
     </View>
@@ -375,13 +394,13 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    marginBottom: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
   tab: {
     flex: 1,
     paddingTop: 5,
     paddingBottom: 10,
-    borderBottomWidth: 2,
   },
   tabText: {
     fontFamily: 'Rubik_600SemiBold',
@@ -391,7 +410,20 @@ const styles = StyleSheet.create({
   tabTextInactive: {
     opacity: 0.5,
   },
-  tabContent: {
+  tabUnderline: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    height: 2,
+  },
+  pagerView: {
     flex: 1,
+    minHeight: 300,
+    marginTop: 24,
+    marginHorizontal: -DesignTokens.spacing.screenPadding,
+  },
+  pageContainer: {
+    flex: 1,
+    paddingHorizontal: DesignTokens.spacing.screenPadding,
   },
 });
