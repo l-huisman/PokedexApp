@@ -23,6 +23,7 @@ Assignment from [Inholland React Native Course 3](https://github.com/levizimmerm
 - [x] Favorites system with persistent storage (SQLite)
 - [x] Type display with unique color coding per type
 - [x] Tabs for: metadata, stats, evolution chains
+- [x] Swipeable tabs for: About, Stats, Evolution
 
 ### User Actions
 - [x] Favorite/unfavorite Pokemon from detail view
